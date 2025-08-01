@@ -1,0 +1,52 @@
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient circle -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E0F2FE;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E9D5FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="heart-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- Main background circle -->
+  <circle cx="60" cy="60" r="50" fill="url(#bg-gradient)" filter="url(#shadow)"/>
+  
+  <!-- Inner circle for contrast -->
+  <circle cx="60" cy="60" r="42" fill="white" opacity="0.9"/>
+  
+  <!-- Main heart icon representing wellness and care -->
+  <path d="M60 75 C45 65, 30 50, 30 38 C30 30, 37 25, 45 25 C52 25, 58 30, 60 32 C62 30, 68 25, 75 25 C83 25, 90 30, 90 38 C90 50, 75 65, 60 75 Z" 
+        fill="url(#heart-gradient)" 
+        opacity="0.9"/>
+  
+  <!-- Breathing circles representing meditation -->
+  <circle cx="35" cy="45" r="3" fill="#60A5FA" opacity="0.7">
+    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="85" cy="45" r="3" fill="#A78BFA" opacity="0.7">
+    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+  </circle>
+  
+  <circle cx="42" cy="35" r="2" fill="#34D399" opacity="0.6">
+    <animate attributeName="r" values="1.5;3;1.5" dur="2.5s" repeatCount="indefinite" begin="1s"/>
+    <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2.5s" repeatCount="indefinite" begin="1s"/>
+  </circle>
+  
+  <circle cx="78" cy="35" r="2" fill="#F59E0B" opacity="0.6">
+    <animate attributeName="r" values="1.5;3;1.5" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
+    <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2.5s" repeatCount="indefinite" begin="1.5s"/>
+  </circle>
+  
+  <!-- Small accent curves suggesting balance and harmony -->
+  <path d="M35 85 Q50 75 65 85" stroke="#60A5FA" stroke-width="2" fill="none" opacity="0.5"/>
+  <path d="M55 85 Q70 75 85 85" stroke="#A78BFA" stroke-width="2" fill="none" opacity="0.5"/>
+</svg>
