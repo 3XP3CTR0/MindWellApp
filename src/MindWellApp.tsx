@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Music, Target, Heart, User, Edit3 } from 'lucide-react';
+import { ArrowLeft, Users, Music, Target, Heart, User, Edit3, Mail, X } from 'lucide-react';
 
 const MindWellApp = () => {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [mood, setMood] = useState<number | null>(null);
-  const [userName, setUserName] = useState('João');
+  const [userName, setUserName] = useState('Danilo');
   const [tempName, setTempName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [dailyUsage, setDailyUsage] = useState({ date: new Date().toDateString(), count: 0 });
 
   // Array com emojis, labels e mensagens de apoio
   const moods = [
@@ -16,20 +20,142 @@ const MindWellApp = () => {
     { emoji: '😔', label: 'Triste', message: 'Sinto muito que você esteja triste. Lembre-se que isso também vai passar, e você não está sozinho.' },
   ];
 
+  const positiveMessages = [
+    "Você é mais forte do que pensa.",
+    "Cada dia é uma nova oportunidade.",
+    "Acredite em você, sempre!",
+    "Coisas boas levam tempo. Confie.",
+    "Você já é uma vitória só por tentar.",
+    "Sua jornada é única e valiosa.",
+    "Pequenos passos levam a grandes conquistas.",
+    "Você tem o poder de transformar seu dia.",
+    "A vida é feita de momentos especiais.",
+    "Você merece todo o amor do mundo."
+  ];
+
+  const handleOpenMessage = () => {
+    const today = new Date().toDateString();
+    
+    // Resetar contador se for um novo dia
+    if (dailyUsage.date !== today) {
+      setDailyUsage({ date: today, count: 0 });
+    }
+    
+    // Verificar se já usou 2 vezes hoje
+    if (dailyUsage.count >= 2) {
+      alert('Você já abriu 2 cartas hoje! 🌙\nVolte amanhã para mais mensagens especiais.');
+      return;
+    }
+    
+    const randomIndex = Math.floor(Math.random() * positiveMessages.length);
+    const message = positiveMessages[randomIndex];
+    setCurrentMessage(message);
+    setShowModal(true);
+    
+    // Incrementar contador de uso
+    setDailyUsage(prev => ({ ...prev, count: prev.count + 1 }));
+  };
+
+  const handleAddToFavorites = () => {
+    if (currentMessage) {
+      if (favorites.includes(currentMessage)) {
+        // Remove dos favoritos se já estiver favoritado
+        setFavorites(favorites.filter(fav => fav !== currentMessage));
+      } else {
+        // Adiciona aos favoritos se não estiver
+        setFavorites([...favorites, currentMessage]);
+      }
+    }
+  };
+
+  const handleRemoveFromFavorites = (message: string) => {
+    setFavorites(favorites.filter(fav => fav !== message));
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setCurrentMessage('');
+  };
+
+  // Modal Component
+  const Modal = () => {
+    if (!showModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-white via-blue-50 to-purple-50 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl border border-blue-100 relative overflow-hidden">
+          {/* Decoração de fundo */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-200 to-transparent opacity-30 rounded-full -translate-y-8 translate-x-8"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-200 to-transparent opacity-30 rounded-full translate-y-6 -translate-x-6"></div>
+          
+          <div className="relative z-10">
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-2xl">✨</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Mensagem Especial
+                  </h3>
+                  <p className="text-sm text-gray-500">Para você ❤️</p>
+                </div>
+              </div>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 hover:bg-gray-100 rounded-full"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 mb-6 shadow-inner border border-white/50">
+              <div className="text-center">
+                <span className="text-4xl mb-4 block">💝</span>
+                <p className="text-gray-700 text-lg leading-relaxed font-medium italic relative">
+                  <span className="text-blue-500 text-2xl absolute -top-2 -left-2">"</span>
+                  {currentMessage}
+                  <span className="text-blue-500 text-2xl absolute -bottom-4 -right-2">"</span>
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={handleAddToFavorites}
+                className={`flex items-center justify-center space-x-2 px-6 py-4 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg ${
+                  favorites.includes(currentMessage) 
+                    ? 'bg-gradient-to-r from-red-400 to-pink-500 text-white shadow-red-200' 
+                    : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-red-50 hover:to-pink-50 hover:text-red-600 shadow-gray-200'
+                }`}
+              >
+                <Heart className={`w-5 h-5 transition-all ${favorites.includes(currentMessage) ? 'fill-current scale-110' : ''}`} />
+                <span className="text-sm font-semibold">
+                  {favorites.includes(currentMessage) ? 'Favoritado' : 'Favoritar'}
+                </span>
+              </button>
+              
+              <button
+                onClick={closeModal}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-2xl font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-200"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const HomeScreen = () => (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 p-6">
       <div className="max-w-md mx-auto">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-800">MindWell</h1>
-          <button 
-            onClick={() => setCurrentScreen('profile')}
-            className="p-2 rounded-full hover:bg-white hover:bg-opacity-50 transition-colors"
-          >
-            <User className="w-6 h-6 text-gray-600" />
-          </button>
         </div>
         
-        <h2 className="text-xl text-gray-700 mb-4">Olá, {userName}<br />Como você está hoje?</h2>
+        <h2 className="text-xl text-gray-700 mb-4">Olá, {userName}!<br />Como você está hoje?</h2>
 
         {mood !== null && (
           <div className="mb-6 p-4 bg-white rounded-xl shadow-sm text-center">
@@ -52,7 +178,7 @@ const MindWellApp = () => {
               <div className="text-gray-500 text-sm">{mood !== null ? moods[mood].label : 'Neutro'}</div>
             </div>
           </button>
-
+          
           <button 
             onClick={() => setCurrentScreen('breathing')}
             className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-3 hover:bg-gray-50 transition-colors"
@@ -70,17 +196,38 @@ const MindWellApp = () => {
             <div className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center">
               <Target className="w-6 h-6 text-red-600" />
             </div>
-            <span className="font-medium text-gray-800">SOS Emocional</span>
-          </button>
-
-          <button className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-3 hover:bg-gray-50 transition-colors">
-            <div className="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center">
-              <Heart className="w-6 h-6 text-pink-600" />
-            </div>
-            <span className="font-medium text-gray-800">Abrir carta positiva</span>
+            <span className="font-medium text-gray-800">Desafio diário</span>
           </button>
         </div>
       </div>
+      
+      {/* Botão fixo da carta positiva */}
+      <button
+        onClick={handleOpenMessage}
+        className={`fixed right-4 top-[60%] z-40 p-4 rounded-full shadow-xl border-2 transition-all duration-300 transform hover:scale-110 hover:rotate-12 ${
+          dailyUsage.date === new Date().toDateString() && dailyUsage.count >= 2
+            ? 'bg-gray-200 border-gray-300 cursor-not-allowed opacity-50'
+            : 'bg-gradient-to-r from-blue-500 to-purple-600 border-white hover:shadow-2xl hover:shadow-purple-300'
+        }`}
+        aria-label="Abrir carta positiva"
+        disabled={dailyUsage.date === new Date().toDateString() && dailyUsage.count >= 2}
+      >
+        <Mail className={`w-7 h-7 ${
+          dailyUsage.date === new Date().toDateString() && dailyUsage.count >= 2
+            ? 'text-gray-400'
+            : 'text-white drop-shadow-lg'
+        }`} />
+        {/* Indicador de usos restantes */}
+        {dailyUsage.date === new Date().toDateString() && dailyUsage.count < 2 && (
+          <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold shadow-lg animate-pulse">
+            {2 - dailyUsage.count}
+          </div>
+        )}
+        {/* Efeito de brilho */}
+        {!(dailyUsage.date === new Date().toDateString() && dailyUsage.count >= 2) && (
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 hover:opacity-20 transition-opacity duration-300"></div>
+        )}
+      </button>
     </div>
   );
 
@@ -167,6 +314,48 @@ const MindWellApp = () => {
                 </>
               )}
             </div>
+          </div>
+
+          {/* Seção de Favoritos */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Heart className="w-5 h-5 text-red-500 fill-current" />
+                <h3 className="text-lg font-semibold text-gray-800">Mensagens Favoritas</h3>
+                <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-medium">
+                  {favorites.length}
+                </span>
+              </div>
+              {/* Contador de cartas do dia */}
+              <div className="text-right">
+                <div className="text-xs text-gray-500">Cartas hoje</div>
+                <div className="text-sm font-semibold text-blue-600">
+                  {dailyUsage.date === new Date().toDateString() ? dailyUsage.count : 0}/2
+                </div>
+              </div>
+            </div>
+            
+            {favorites.length === 0 ? (
+              <p className="text-gray-500 text-sm text-center py-4">
+                Nenhuma mensagem favoritada ainda.<br />
+                Clique na carta positiva e favorite suas mensagens preferidas!
+              </p>
+            ) : (
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {favorites.map((message, index) => (
+                  <div key={index} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <Heart className="w-4 h-4 text-red-500 fill-current mt-1 flex-shrink-0" />
+                    <p className="text-gray-700 text-sm flex-1 italic">"{message}"</p>
+                    <button
+                      onClick={() => handleRemoveFromFavorites(message)}
+                      className="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-sm">
@@ -367,12 +556,7 @@ const MindWellApp = () => {
         >
           <Heart className={`w-6 h-6 ${currentScreen === 'home' ? 'text-blue-600' : 'text-gray-400'}`} />
         </button>
-        <button 
-          onClick={() => setCurrentScreen('breathing')}
-          className={`p-3 rounded-full ${currentScreen === 'breathing' ? 'bg-blue-100' : ''}`}
-        >
-          <Target className={`w-6 h-6 ${currentScreen === 'breathing' ? 'text-blue-600' : 'text-gray-400'}`} />
-        </button>
+        
         <button 
           onClick={() => setCurrentScreen('sos')}
           className={`p-3 rounded-full ${currentScreen === 'sos' ? 'bg-red-100' : ''}`}
@@ -397,6 +581,7 @@ const MindWellApp = () => {
       {currentScreen === 'sos' && <SOSScreen />}
       {currentScreen === 'profile' && <ProfileScreen />}
       <BottomNav />
+      <Modal />
     </div>
   );
 };
