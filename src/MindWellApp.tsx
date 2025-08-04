@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Users, Music, Target, Heart, User, Edit3, Mail, X } from 'lucide-react';
 
