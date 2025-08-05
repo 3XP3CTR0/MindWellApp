@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Users, Music, Target, Heart, User, Edit3, Mail, X } from 'lucide-react';
 
 const MindWellApp = () => {
@@ -547,7 +546,7 @@ const MindWellApp = () => {
 
   const BreathingScreen = () => {
     const [breathing, setBreathing] = useState({ active: false, phase: 'inhale', count: 4 });
-    const [breathingTimer, setBreathingTimer] = useState<typeof setInterval | null>(null);
+    const [breathingTimer, setBreathingTimer] = useState<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
       if (breathing.active) {
