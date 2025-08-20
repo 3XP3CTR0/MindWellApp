@@ -21,11 +21,13 @@ const MindWellApp = () => {
   const [currentMoodNote, setCurrentMoodNote] = useState('');
 
   // Ícone personalizado MindWell
-  const MindWellIcon = ({ className }: { className?: string }) => (
-    <div className={`${className} relative`}>
-      <Brain className="w-full h-full" />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-current rounded-full opacity-60" />
-    </div>
+  // Ícone personalizado MindWell usando seu PNG da pasta public
+  const MindWellIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
+    <img 
+      src="public/mindwell_app_icon.png" 
+      alt="MindWell Icon" 
+      className={`${className} object-contain`}
+    />
   );
 
   const calculateAverageMood = () => {
@@ -199,11 +201,17 @@ const MindWellApp = () => {
     }
 
     async initAudioContext() {
-      if (!this.audioContext) {
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (this.audioContext.state === 'suspended') {
-        await this.audioContext.resume();
+      try {
+        if (!this.audioContext) {
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.audioContext.state === 'suspended') {
+          await this.audioContext.resume();
+        }
+        return true;
+      } catch (error) {
+        console.error('Erro ao inicializar AudioContext:', error);
+        return false;
       }
     }
 
@@ -796,8 +804,8 @@ const MindWellApp = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 p-6 flex items-center justify-center">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <MindWellIcon className="w-10 h-10 text-white" />
+          <div className="w-35 h-35 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <MindWellIcon className="w-60 h-60 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Bem-vindo ao MindWell!</h1>
           <p className="text-gray-600 text-lg">Vamos conhecer você melhor para personalizar sua experiência</p>
@@ -878,7 +886,7 @@ const MindWellApp = () => {
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <MindWellIcon className="w-8 h-8 text-blue-600" />
+              <MindWellIcon className="w-25 h-25 text-blue-600" />
               <h1 className="text-2xl font-bold text-gray-800">MindWell</h1>
             </div>
               <button 
@@ -1849,8 +1857,8 @@ const MindWellApp = () => {
 
         {/* Header da aplicação */}
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-6 text-center">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MindWellIcon className="w-8 h-8 text-white" />
+          <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MindWellIcon className="w-60 h-60 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-2">MindWell</h2>
           <p className="text-gray-600">Seu companheiro para bem-estar mental</p>
