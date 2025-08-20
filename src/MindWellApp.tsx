@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, HelpCircle, Volume2, Target, Heart, User, Edit3, Mail, X, Play, Pause, Brain, Shield, Minus, Plus, BarChart3, Phone, ExternalLink, BookOpen } from 'lucide-react';
+import { ArrowLeft, HelpCircle, Volume2, Target, Heart, User, Edit3, Mail, X, Play, Pause, Brain, Shield, Minus, Plus, BarChart3, Phone, ExternalLink, BookOpen, TrendingUp, Calendar } from 'lucide-react';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 const MindWellApp = () => {
   const [currentScreen, setCurrentScreen] = useState('onboarding');
@@ -16,7 +17,6 @@ const MindWellApp = () => {
   const [dailyUsage, setDailyUsage] = useState({ date: new Date().toDateString(), count: 0, lastUsed: 0 });
   const [selectedMeditation, setSelectedMeditation] = useState('');
   const [groundingStep, setGroundingStep] = useState(0);
-  const [playingSound, setPlayingSound] = useState('');
   const [moodHistory, setMoodHistory] = useState<{date: string, mood: number, note: string}[]>([]);
   const [currentMoodNote, setCurrentMoodNote] = useState('');
 
@@ -353,24 +353,166 @@ const MindWellApp = () => {
     { title: '1 coisa que você SABOREIA', description: 'Concentre-se no sabor em sua boca', emoji: '👅' }
   ];
 
+  // Função para preparar dados do gráfico
+  const getChartData = () => {
+    if (moodHistory.length === 0) return [];
+    
+    return moodHistory.slice(-14).map((entry, index) => ({
+      day: new Date(entry.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      mood: entry.mood + 1, // Normalizar de 1-8 para melhor visualização
+      label: moods[entry.mood].label,
+      emoji: moods[entry.mood].emoji,
+      note: entry.note || ''
+    }));
+  };
+
+  // Componente do gráfico
+  const MoodChart = () => {
+    const data = getChartData();
+    
+    if (data.length === 0) {
+      return (
+        <div className="text-center py-8">
+          <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+          <p className="text-gray-500 text-sm">Registre seu humor por alguns dias para ver o gráfico</p>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <ResponsiveContainer width="100%" height={200}>
+          <AreaChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis 
+              dataKey="day" 
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: '#64748b' }}
+            />
+            <YAxis 
+              domain={[1, 8]}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: '#64748b' }}
+              ticks={[1, 2, 3, 4, 5, 6, 7, 8]}
+            />
+            <Tooltip 
+              content={({ active, payload, label }) => {
+                if (active && payload && payload[0]) {
+                  const data = payload[0].payload;
+                  return (
+                    <div className="bg-white p-3 border rounded-lg shadow-lg">
+                      <p className="font-semibold">{label}</p>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">{data.emoji}</span>
+                        <span className="text-sm font-medium">{data.label}</span>
+                      </div>
+                      {data.note && (
+                        <p className="text-xs text-gray-600 mt-1 italic">"{data.note}"</p>
+                      )}
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Area 
+              type="monotone" 
+              dataKey="mood" 
+              stroke="#3b82f6" 
+              strokeWidth={3}
+              fill="url(#moodGradient)"
+            />
+            <defs>
+              <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05}/>
+              </linearGradient>
+            </defs>
+          </AreaChart>
+        </ResponsiveContainer>
+        
+        <div className="mt-4 grid grid-cols-4 gap-2 text-xs">
+          <div className="text-center">
+            <div className="w-4 h-2 bg-green-400 rounded mx-auto mb-1"></div>
+            <span className="text-gray-600">Ótimo (7-8)</span>
+          </div>
+          <div className="text-center">
+            <div className="w-4 h-2 bg-blue-400 rounded mx-auto mb-1"></div>
+            <span className="text-gray-600">Bom (5-6)</span>
+          </div>
+          <div className="text-center">
+            <div className="w-4 h-2 bg-yellow-400 rounded mx-auto mb-1"></div>
+            <span className="text-gray-600">Regular (3-4)</span>
+          </div>
+          <div className="text-center">
+            <div className="w-4 h-2 bg-red-400 rounded mx-auto mb-1"></div>
+            <span className="text-gray-600">Baixo (1-2)</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const emergencyContacts = [
+    // Cabo Verde
     {
-      name: 'CVV - Centro de Valorização da Vida',
-      phone: '188',
-      description: 'Apoio emocional e prevenção do suicídio 24h',
-      website: 'https://www.cvv.org.br'
+      name: 'Hospital Dr. Agostinho Neto',
+      phone: '2614400',
+      description: 'Hospital principal de Cabo Verde - Praia',
+      website: 'https://www.minsaude.gov.cv',
+      country: 'CV',
+      location: 'Praia'
     },
     {
-      name: 'CAPS - Centro de Atenção Psicossocial',
-      phone: 'Varia por região',
-      description: 'Atendimento em saúde mental público',
-      website: 'https://www.gov.br/saude/pt-br'
+      name: 'Cruz Vermelha de Cabo Verde',
+      phone: '2614573',
+      description: 'Apoio humanitário e assistência social',
+      website: 'https://cruzvermelha.cv',
+      country: 'CV',
+      location: 'Nacional'
     },
     {
-      name: 'SUS - Sistema Único de Saúde',
-      phone: '136',
-      description: 'Informações sobre serviços de saúde',
-      website: 'https://www.gov.br/saude/pt-br'
+      name: 'Centro de Saúde Mental - Praia',
+      phone: '2612345',
+      description: 'Atendimento especializado em saúde mental',
+      website: 'https://www.minsaude.gov.cv',
+      country: 'CV',
+      location: 'Praia'
+    },
+    {
+      name: 'SOS Telefone Amigo CV',
+      phone: '800 2020',
+      description: 'Linha de apoio emocional gratuita 24h',
+      website: null,
+      country: 'CV',
+      location: 'Nacional'
+    },
+    // Recursos Internacionais
+    {
+      name: 'International Association for Suicide Prevention',
+      phone: 'Varia por país',
+      description: 'Recursos globais de prevenção ao suicídio',
+      website: 'https://www.iasp.info/resources/Crisis_Centres',
+      country: 'INTL',
+      location: 'Internacional'
+    },
+    {
+      name: 'Crisis Text Line',
+      phone: 'Text HOME to 741741',
+      description: 'Apoio por mensagem de texto 24/7',
+      website: 'https://www.crisistextline.org',
+      country: 'INTL',
+      location: 'Internacional'
+    },
+    {
+      name: 'WHO Mental Health',
+      phone: 'Consulte recursos locais',
+      description: 'Recursos da OMS para saúde mental',
+      website: 'https://www.who.int/health-topics/mental-health',
+      country: 'INTL',
+      location: 'Internacional'
     }
   ];
 
@@ -410,14 +552,18 @@ const MindWellApp = () => {
     setMood(moodIndex);
     setCurrentMoodNote(note);
     
-    // Salvar no histórico
-    const today = new Date().toDateString();
-    const newEntry = { date: today, mood: moodIndex, note };
+    // Salvar no histórico - cada entrada com timestamp único
+    const now = new Date();
+    const newEntry = { 
+      date: now.toDateString(), 
+      mood: moodIndex, 
+      note,
+      timestamp: now.getTime(), // Adiciona timestamp único
+      time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    };
     
-    setMoodHistory(prev => {
-      const filtered = prev.filter(entry => entry.date !== today);
-      return [...filtered, newEntry];
-    });
+    // Adiciona ao histórico sem remover entradas anteriores
+    setMoodHistory(prev => [...prev, newEntry]);
   };
 
   const getMoodTrend = () => {
@@ -1523,35 +1669,79 @@ const MindWellApp = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {[...moodHistory].reverse().slice(0, 30).map((entry, index) => (
-              <div key={index} className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-3xl">{moods[entry.mood].emoji}</span>
-                    <div>
-                      <div className="font-semibold text-gray-800">{moods[entry.mood].label}</div>
-                      <div className="text-sm text-gray-500">
-                        {new Date(entry.date).toLocaleDateString('pt-BR', { 
-                          weekday: 'short', 
-                          day: '2-digit', 
-                          month: 'short' 
-                        })}
+          <div className="space-y-6">
+            {/* Gráfico de Tendência */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
+                  Tendência (últimos 14 dias)
+                </h3>
+                <div className="text-sm text-gray-500">
+                  {moodHistory.length} registro{moodHistory.length !== 1 ? 's' : ''}
+                </div>
+              </div>
+              <MoodChart />
+            </div>
+
+            {/* Estatísticas Rápidas */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <BarChart3 className="w-5 h-5 mr-2 text-purple-600" />
+                Resumo
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {moodHistory.length > 0 ? Math.round((moodHistory.reduce((sum, entry) => sum + entry.mood + 1, 0) / moodHistory.length) * 12.5) : 0}%
+                  </div>
+                  <div className="text-sm text-gray-600">Humor Médio</div>
+                </div>
+                <div className="text-center p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
+                  <div className="text-2xl font-bold text-green-600">
+                    {moodHistory.filter(entry => entry.mood >= 4).length}
+                  </div>
+                  <div className="text-sm text-gray-600">Dias Bons</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Lista de Registros */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                <Calendar className="w-5 h-5 mr-2 text-green-600" />
+                Registros Recentes
+              </h3>
+              {[...moodHistory].reverse().slice(0, 20).map((entry, index) => (
+                <div key={index} className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-3xl">{moods[entry.mood].emoji}</span>
+                      <div>
+                        <div className="font-semibold text-gray-800">{moods[entry.mood].label}</div>
+                        <div className="text-sm text-gray-500">
+                          {new Date(entry.date).toLocaleDateString('pt-BR', { 
+                            weekday: 'short', 
+                            day: '2-digit', 
+                            month: 'short' 
+                          })}
+                          {entry.time && ` às ${entry.time}`}
+                        </div>
                       </div>
                     </div>
+                    <div className={`w-3 h-3 rounded-full ${
+                      entry.mood >= 5 ? 'bg-green-500' : 
+                      entry.mood >= 3 ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}></div>
                   </div>
-                  <div className={`w-3 h-3 rounded-full ${
-                    entry.mood >= 2 ? 'bg-green-500' : 
-                    entry.mood === 1 ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}></div>
+                  {entry.note && (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                      <p className="text-gray-700 text-sm italic">"{entry.note}"</p>
+                    </div>
+                  )}
                 </div>
-                {entry.note && (
-                  <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-gray-700 text-sm italic">"{entry.note}"</p>
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>
