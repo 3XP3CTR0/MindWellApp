@@ -28,39 +28,119 @@ const MindWellApp = () => {
     </div>
   );
 
+  const calculateAverageMood = () => {
+    if (moodHistory.length === 0) return 0;
+    const average = moodHistory.reduce((sum, entry) => sum + entry.score, 0) / moodHistory.length;
+    return Math.round((average / 8) * 100); // transforma para porcentagem (0–100%)
+  };
+
+
   // Array com emojis, labels e mensagens de apoio
   const moods = [
-    { emoji: '😊', label: 'Feliz', message: 'Que ótimo que você está se sentindo feliz! Continue espalhando essa energia positiva.' },
-    { emoji: '🙂', label: 'Bem', message: 'Legal! Que seu dia continue tranquilo e cheio de coisas boas.' },
-    { emoji: '😐', label: 'Neutro', message: 'Tudo bem ter dias neutros. Às vezes a calma também é necessária.' },
-    { emoji: '😔', label: 'Triste', message: 'Sinto muito que você esteja triste. Lembre-se que isso também vai passar, e você não está sozinho.' },
-    { emoji: '😟', label: 'Ansioso', message: 'A ansiedade é desafiadora, mas você pode superá-la. Respire fundo e vá um passo de cada vez.' },
-    { emoji: '😤', label: 'Irritado', message: 'É normal sentir raiva às vezes. Tente encontrar uma forma saudável de expressar esses sentimentos.' },
-    { emoji: '😰', label: 'Estressado', message: 'O estresse faz parte da vida, mas você não precisa carregar tudo sozinho. Busque apoio quando precisar.' },
-    { emoji: '🤗', label: 'Esperançoso', message: 'Que lindo ver você com esperança! Essa energia positiva pode transformar muita coisa.' },
-  ];
-
-  const positiveMessages = [
-    "Você é mais forte do que pensa.",
-    "Cada dia é uma nova oportunidade.",
-    "Acredite em você, sempre!",
-    "Coisas boas levam tempo. Confie.",
-    "Você já é uma vitória só por tentar.",
-    "Sua jornada é única e valiosa.",
-    "Pequenos passos levam a grandes conquistas.",
-    "Você tem o poder de transformar seu dia.",
-    "A vida é feita de momentos especiais.",
-    "Você merece todo o amor do mundo.",
-    "Sua presença faz diferença no mundo.",
-    "Você está exatamente onde precisa estar.",
-    "Cada respiração é um novo começo.",
-    "Você é capaz de coisas incríveis.",
-    "O melhor ainda está por vir.",
-    "Sua luz brilha mesmo nos dias difíceis.",
-    "Você é suficiente, exatamente como é.",
-    "Cada desafio te torna mais resiliente.",
-    "Sua história ainda está sendo escrita.",
-    "O universo conspira a seu favor."
+    { 
+      emoji: '😊', 
+      label: 'Feliz', 
+      messages: [
+        'Que ótimo que você está se sentindo feliz! Continue espalhando essa energia positiva.',
+        'A felicidade ilumina não só o seu dia, mas também o de quem está perto de você ✨',
+        'Aproveite cada instante e celebre as pequenas vitórias que a vida traz.',
+        'Seu sorriso pode ser a razão do dia de alguém ser mais leve hoje.',
+        'Estar feliz é um presente, mas também é fruto das suas escolhas e da sua força.',
+        'Compartilhe sua alegria e veja como ela se multiplica ao redor.'
+      ],
+      score: 8
+    },
+    { 
+      emoji: '🙂', 
+      label: 'Bem', 
+      messages: [
+        'Legal! Que seu dia continue tranquilo e cheio de coisas boas.',
+        'Estar bem é sinal de equilíbrio — valorize essa sensação.',
+        'A paz de hoje pode ser a força para enfrentar os desafios de amanhã.',
+        'Quando estamos bem, espalhamos serenidade para todos à volta.',
+        'Use esse momento de calma para recarregar suas energias.',
+        'Seu estado de bem-estar é uma conquista: mantenha-o com carinho.'
+      ],
+      score: 7
+    },
+    { 
+      emoji: '😐', 
+      label: 'Neutro', 
+      messages: [
+        'Tudo bem ter dias neutros. Às vezes a calma também é necessária.',
+        'Nem todo dia precisa ser extraordinário: dias neutros também são parte da vida.',
+        'O silêncio e a neutralidade dão espaço para novas ideias florescerem.',
+        'Mesmo dias comuns podem trazer pequenas alegrias escondidas.',
+        'Estar neutro é sinal de equilíbrio interno. Permita-se descansar.',
+        'Hoje é um ponto de pausa: o próximo passo pode ser incrível.'
+      ],
+      score: 5 
+    },
+    { 
+      emoji: '😔', 
+      label: 'Triste', 
+      messages: [
+        'Sinto muito que você esteja triste. Lembre-se: isso também vai passar.',
+        'A tristeza é válida — acolha seus sentimentos com compaixão.',
+        'Mesmo nos dias nublados, o sol sempre retorna. 🌤️',
+        'Permita-se sentir, mas lembre-se de que você não está sozinho.',
+        'Cada lágrima pode regar uma nova fase de crescimento.',
+        'Você é mais forte do que imagina, mesmo quando não sente isso.'
+      ],
+      score: 3
+    },
+    { 
+      emoji: '😟', 
+      label: 'Ansioso', 
+      messages: [
+        'A ansiedade é desafiadora, mas você pode superá-la. Respire fundo.',
+        'Não precisa controlar tudo de uma vez — um passo de cada vez já é vitória.',
+        'O agora é o seu refúgio. Concentre-se neste momento.',
+        'Sua respiração é uma âncora que pode te trazer calma.',
+        'Você não é a sua ansiedade. Ela é apenas uma onda que passa.',
+        'Seu coração é forte: confie no processo de encontrar equilíbrio.'
+      ],
+      score: 2
+    },
+    { 
+      emoji: '😤', 
+      label: 'Irritado', 
+      messages: [
+        'É normal sentir raiva às vezes. Canalize-a de forma saudável.',
+        'Respire fundo e permita-se uma pausa antes de reagir.',
+        'A irritação mostra que algo importa para você — use isso como energia positiva.',
+        'Transforme a raiva em motivação para mudar o que pode ser mudado.',
+        'Dar espaço ao silêncio pode trazer clareza antes da ação.',
+        'Você tem o controle: a raiva não precisa guiar suas escolhas.'
+      ],
+      score: 2
+    },
+    { 
+      emoji: '😰', 
+      label: 'Estressado', 
+      messages: [
+        'O estresse faz parte da vida, mas você não precisa carregar tudo sozinho.',
+        'Descanse sua mente: pequenas pausas podem trazer grandes alívios.',
+        'Você está dando o seu melhor, e isso já é suficiente 🌱',
+        'Respirar fundo e se afastar por alguns minutos pode renovar sua energia.',
+        'Ser produtivo também inclui saber descansar.',
+        'Seja gentil consigo mesmo: você merece equilíbrio e paz.'
+      ],
+      score: 1
+    },
+    { 
+      emoji: '🤗', 
+      label: 'Esperançoso', 
+      messages: [
+        'Que lindo ver você com esperança! Essa energia transforma vidas.',
+        'A esperança é uma chama que nunca se apaga — cuide dela.',
+        'Continue acreditando: cada passo te aproxima do que deseja.',
+        'O futuro guarda possibilidades incríveis para quem mantém a fé.',
+        'Com esperança, até os dias difíceis ficam mais leves.',
+        'Sua esperança inspira e fortalece quem caminha ao seu lado.'
+      ],
+      score: 7
+    }
   ];
 
   const meditationTypes = [
@@ -358,8 +438,8 @@ const MindWellApp = () => {
     if (moodHistory.length === 0) return [];
     
     return moodHistory.slice(-14).map((entry, index) => ({
-      day: new Date(entry.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-      mood: entry.mood + 1, // Normalizar de 1-8 para melhor visualização
+      day: new Date(entry.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+      mood: entry.score, // Normalizar de 1-8 para melhor visualização
       label: moods[entry.mood].label,
       emoji: moods[entry.mood].emoji,
       note: entry.note || ''
@@ -517,20 +597,28 @@ const MindWellApp = () => {
   ];
 
   const handleOpenMessage = () => {
+    if (mood === null) {
+      alert('Por favor, registre seu humor antes de abrir a carta! 🙂');
+      return;
+    }
+
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
-    
+
     if (dailyUsage.lastUsed && (now - dailyUsage.lastUsed) < oneHour) {
       const timeLeft = Math.ceil((oneHour - (now - dailyUsage.lastUsed)) / (60 * 1000));
       alert(`Aguarde mais ${timeLeft} minutos para abrir uma nova carta! ⏰`);
       return;
     }
-    
-    const randomIndex = Math.floor(Math.random() * positiveMessages.length);
-    const message = positiveMessages[randomIndex];
+
+    // Sorteia uma mensagem entre as disponíveis do humor atual
+    const moodMessages = moods[mood].messages;
+    const randomIndex = Math.floor(Math.random() * moodMessages.length);
+    const message = moodMessages[randomIndex];
+
     setCurrentMessage(message);
     setShowModal(true);
-    
+
     setDailyUsage(prev => ({ ...prev, lastUsed: now, count: prev.count + 1 }));
   };
 
@@ -555,13 +643,14 @@ const MindWellApp = () => {
     // Salvar no histórico - cada entrada com timestamp único
     const now = new Date();
     const newEntry = { 
-      date: now.toDateString(), 
+      date: now.toISOString(), 
       mood: moodIndex, 
+      score: moods[moodIndex].score, 
       note,
-      timestamp: now.getTime(), // Adiciona timestamp único
+      timestamp: now.getTime(),
       time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
     };
-    
+
     // Adiciona ao histórico sem remover entradas anteriores
     setMoodHistory(prev => [...prev, newEntry]);
   };
@@ -1625,7 +1714,7 @@ const MindWellApp = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {moodHistory.length > 0 ? Math.round((moodHistory.reduce((sum, entry) => sum + entry.mood + 1, 0) / moodHistory.length) * 25) : 0}%
+                {calculateAverageMood()}%
               </div>
               <div className="text-sm text-gray-600">Humor médio</div>
             </div>
@@ -1693,7 +1782,7 @@ const MindWellApp = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
                   <div className="text-2xl font-bold text-blue-600">
-                    {moodHistory.length > 0 ? Math.round((moodHistory.reduce((sum, entry) => sum + entry.mood + 1, 0) / moodHistory.length) * 12.5) : 0}%
+                    {calculateAverageMood()}%
                   </div>
                   <div className="text-sm text-gray-600">Humor Médio</div>
                 </div>
@@ -1730,8 +1819,8 @@ const MindWellApp = () => {
                       </div>
                     </div>
                     <div className={`w-3 h-3 rounded-full ${
-                      entry.mood >= 5 ? 'bg-green-500' : 
-                      entry.mood >= 3 ? 'bg-yellow-500' : 'bg-red-500'
+                      entry.score >= 5 ? 'bg-green-500' : 
+                      entry.score >= 3 ? 'bg-yellow-500' : 'bg-red-500'
                     }`}></div>
                   </div>
                   {entry.note && (
