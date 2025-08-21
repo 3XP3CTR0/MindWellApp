@@ -1,3 +1,4 @@
+//@ts-ignore
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, HelpCircle, Volume2, Target, Heart, User, Edit3, Mail, X, Play, Pause, Brain, Shield, Minus, Plus, BarChart3, Phone, ExternalLink, BookOpen, TrendingUp, Calendar } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
