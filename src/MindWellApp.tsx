@@ -36,7 +36,7 @@ const MindWellApp = () => {
   // Ícone personalizado MindWell usando seu PNG da pasta public
   const MindWellIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
     <img
-      src="public/mindwell_app_icon.svg"
+      src="/mindwell_app_icon.svg"
       alt="MindWell Icon"
       className={`${className} object-contain`}
     />
@@ -217,12 +217,12 @@ const MindWellApp = () => {
 
   // Classe para gerenciar os sons (usando arquivos MP3 reais)
   const SOUND_FILES = {
-    rain: 'public/audio/rain.mp3',
-    ocean: 'public/audio/ocean.mp3',
-    wind: 'public/audio/wind.mp3',
-    forest: 'public/audio/forest.mp3',
-    thunder: 'public/audio/thunder.mp3',
-    fireplace: 'public/audio/fireplace.mp3',
+    rain: '/audio/rain.mp3',
+    ocean: '/audio/ocean.mp3',
+    wind: '/audio/wind.mp3',
+    forest: '/audio/forest.mp3',
+    thunder: '/audio/thunder.mp3',
+    fireplace: '/audio/fireplace.mp3',
   } as const;
   type SoundType = keyof typeof SOUND_FILES;
 
