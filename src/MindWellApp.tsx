@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, HelpCircle, Volume2, Target, Heart, User, Edit3, Mail, X, Play, Pause, Brain, Shield, Minus, Plus, BarChart3, Phone, ExternalLink, BookOpen, TrendingUp, Calendar } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, HelpCircle, Volume2, Target, Heart, User, Edit3, Mail, X, Play, Menu, Pause, BookOpenIcon, Shield, Minus, Plus, BarChart3, Phone, ExternalLink, BookOpen, TrendingUp, Calendar } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 const MindWellApp = () => {
@@ -7,9 +7,9 @@ const MindWellApp = () => {
   const [isFirstTime, setIsFirstTime] = useState(true);
   const [mood, setMood] = useState<number | null>(null);
   const [userName, setUserName] = useState('');
-  const [userAge, setUserAge] = useState('');
   const [tempName, setTempName] = useState('');
-  const [tempAge, setTempAge] = useState(25);
+  const [userBirthDate, setUserBirthDate] = useState('');
+  const [tempBirthDate, setTempBirthDate] = useState(new Date(1999, 0, 1)); // 1º de janeiro de 1999
   const [isEditing, setIsEditing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentMessage, setCurrentMessage] = useState('');
@@ -19,16 +19,31 @@ const MindWellApp = () => {
   const [groundingStep, setGroundingStep] = useState(0);
   const [moodHistory, setMoodHistory] = useState<{date: string, mood: number, note: string}[]>([]);
   const [currentMoodNote, setCurrentMoodNote] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+
 
   // Ícone personalizado MindWell
   // Ícone personalizado MindWell usando seu PNG da pasta public
   const MindWellIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
     <img 
-      src="public/mindwell_app_icon.png" 
+      src="public/mindwell_app_icon.svg" 
       alt="MindWell Icon" 
       className={`${className} object-contain`}
     />
   );
+
+  // ADICIONAR esta função:
+  const calculateAge = (birthDate: Date) => {
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
 
   const calculateAverageMood = () => {
     if (moodHistory.length === 0) return 0;
@@ -190,212 +205,50 @@ const MindWellApp = () => {
     }
   ];
 
-  // Classe para gerenciar os sons (com sons gerados artificialmente)
+// Classe para gerenciar os sons (usando arquivos MP3 reais)
   class MindWellSoundManager {
     constructor() {
-      this.audioContext = null;
-      this.oscillators = [];
-      this.gainNodes = [];
+      this.currentAudio = null;
       this.isPlaying = false;
       this.currentSoundType = '';
-    }
-
-    async initAudioContext() {
-      try {
-        if (!this.audioContext) {
-          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (this.audioContext.state === 'suspended') {
-          await this.audioContext.resume();
-        }
-        return true;
-      } catch (error) {
-        console.error('Erro ao inicializar AudioContext:', error);
-        return false;
-      }
-    }
-
-    // Gera som de chuva usando ruído branco
-    generateRainSound() {
-      const bufferSize = 2 * this.audioContext.sampleRate;
-      const noiseBuffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
-      
-      const whiteNoise = this.audioContext.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-      whiteNoise.loop = true;
-      
-      const filter = this.audioContext.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(800, this.audioContext.currentTime);
-      
-      return { source: whiteNoise, filter };
-    }
-
-    // Gera som de oceano usando osciladores
-    generateOceanSound() {
-      const osc1 = this.audioContext.createOscillator();
-      const osc2 = this.audioContext.createOscillator();
-      
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(0.3, this.audioContext.currentTime);
-      
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(0.1, this.audioContext.currentTime);
-      
-      const filter = this.audioContext.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(400, this.audioContext.currentTime);
-      
-      return { sources: [osc1, osc2], filter };
-    }
-
-    // Gera som de vento
-    generateWindSound() {
-      const bufferSize = 2 * this.audioContext.sampleRate;
-      const noiseBuffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = (Math.random() * 2 - 1) * 0.3;
-      }
-      
-      const whiteNoise = this.audioContext.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-      whiteNoise.loop = true;
-      
-      const filter = this.audioContext.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(200, this.audioContext.currentTime);
-      filter.Q.setValueAtTime(0.5, this.audioContext.currentTime);
-      
-      return { source: whiteNoise, filter };
-    }
-
-    // Gera som de meditação
-    generateMeditationSound() {
-      const osc = this.audioContext.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(110, this.audioContext.currentTime);
-      
-      const filter = this.audioContext.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(500, this.audioContext.currentTime);
-      
-      return { source: osc, filter };
-    }
-
-    // Gera som de respiração profunda
-    generateDeepSound() {
-      const osc = this.audioContext.createOscillator();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(80, this.audioContext.currentTime);
-      
-      const filter = this.audioContext.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(300, this.audioContext.currentTime);
-      
-      return { source: osc, filter };
-    }
-
-    // Gera som calmo
-    generateCalmSound() {
-      const osc1 = this.audioContext.createOscillator();
-      const osc2 = this.audioContext.createOscillator();
-      
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(220, this.audioContext.currentTime);
-      
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(330, this.audioContext.currentTime);
-      
-      const filter = this.audioContext.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(600, this.audioContext.currentTime);
-      
-      return { sources: [osc1, osc2], filter };
+      this.volume = 0.7;
     }
 
     async playSound(soundType) {
-      await this.initAudioContext();
       this.stopSound();
       
       try {
-        const masterGain = this.audioContext.createGain();
-        masterGain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-        masterGain.connect(this.audioContext.destination);
+        // Mapear os tipos de som para os arquivos MP3
+        const soundFiles = {
+          'rain': 'public/audio/rain.mp3',
+          'ocean': 'public/audio/ocean.mp3',
+          'wind': 'public/audio/wind.mp3',
+          'forest': 'public/audio/forest.mp3',
+          'thunder': 'public/audio/thunder.mp3',
+          'fireplace': 'public/audio/fireplace.mp3',
+        };
+
+        const audioFile = soundFiles[soundType];
+        if (!audioFile) {
+          console.warn(`Som ${soundType} não encontrado`);
+          return false;
+        }
+
+        this.currentAudio = new Audio(audioFile);
+        this.currentAudio.loop = true;
+        this.currentAudio.volume = this.volume;
         
-        this.gainNodes.push(masterGain);
+        // Aguardar o carregamento do áudio
+        await new Promise((resolve, reject) => {
+          this.currentAudio.addEventListener('canplaythrough', resolve, { once: true });
+          this.currentAudio.addEventListener('error', reject, { once: true });
+          this.currentAudio.load();
+        });
+
+        await this.currentAudio.play();
+        this.isPlaying = true;
         this.currentSoundType = soundType;
         
-        switch(soundType) {
-          case 'rain':
-            const rainSound = this.generateRainSound();
-            rainSound.source.connect(rainSound.filter);
-            rainSound.filter.connect(masterGain);
-            rainSound.source.start();
-            this.oscillators.push(rainSound.source);
-            break;
-            
-          case 'ocean':
-            const oceanSound = this.generateOceanSound();
-            oceanSound.sources.forEach(osc => {
-              osc.connect(oceanSound.filter);
-              osc.start();
-              this.oscillators.push(osc);
-            });
-            oceanSound.filter.connect(masterGain);
-            break;
-            
-          case 'wind':
-            const windSound = this.generateWindSound();
-            windSound.source.connect(windSound.filter);
-            windSound.filter.connect(masterGain);
-            windSound.source.start();
-            this.oscillators.push(windSound.source);
-            break;
-
-          case 'meditation':
-            const meditationSound = this.generateMeditationSound();
-            meditationSound.source.connect(meditationSound.filter);
-            meditationSound.filter.connect(masterGain);
-            meditationSound.source.start();
-            this.oscillators.push(meditationSound.source);
-            break;
-
-          case 'deep':
-            const deepSound = this.generateDeepSound();
-            deepSound.source.connect(deepSound.filter);
-            deepSound.filter.connect(masterGain);
-            deepSound.source.start();
-            this.oscillators.push(deepSound.source);
-            break;
-
-          case 'calm':
-            const calmSound = this.generateCalmSound();
-            calmSound.sources.forEach(osc => {
-              osc.connect(calmSound.filter);
-              osc.start();
-              this.oscillators.push(osc);
-            });
-            calmSound.filter.connect(masterGain);
-            break;
-            
-          default:
-            // Som genérico (tom baixo relaxante)
-            const osc = this.audioContext.createOscillator();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(110, this.audioContext.currentTime);
-            osc.connect(masterGain);
-            osc.start();
-            this.oscillators.push(osc);
-        }
-        
-        this.isPlaying = true;
         return true;
       } catch (error) {
         console.error('Erro ao reproduzir som:', error);
@@ -404,32 +257,20 @@ const MindWellApp = () => {
     }
 
     stopSound() {
-      this.oscillators.forEach(osc => {
-        try {
-          osc.stop();
-        } catch (e) {
-          // Ignorar erros se já parado
-        }
-      });
-      
-      this.gainNodes.forEach(gain => {
-        try {
-          gain.disconnect();
-        } catch (e) {
-          // Ignorar erros
-        }
-      });
-      
-      this.oscillators = [];
-      this.gainNodes = [];
+      if (this.currentAudio) {
+        this.currentAudio.pause();
+        this.currentAudio.currentTime = 0;
+        this.currentAudio = null;
+      }
       this.isPlaying = false;
       this.currentSoundType = '';
     }
 
     setVolume(volume) {
-      this.gainNodes.forEach(gain => {
-        gain.gain.setValueAtTime(volume * 0.3, this.audioContext?.currentTime || 0);
-      });
+      this.volume = volume;
+      if (this.currentAudio) {
+        this.currentAudio.volume = volume;
+      }
     }
   }
 
@@ -679,55 +520,136 @@ const MindWellApp = () => {
     setCurrentMessage('');
   };
 
+  // SUBSTITUIR a função completeOnboarding por:
   const completeOnboarding = () => {
-    if (tempName.trim() && tempAge) {
+    if (tempName.trim() && tempBirthDate) {
       setUserName(tempName.trim());
-      setUserAge(tempAge.toString());
+      setUserBirthDate(tempBirthDate.toISOString());
       setIsFirstTime(false);
       setCurrentScreen('mood');
       setTempName('');
-      setTempAge(25);
+      setTempBirthDate(new Date(1999, 0, 1));
     } else {
       alert('Por favor, preencha todos os campos para continuar.');
     }
   };
 
-  // Componente de seleção de idade
-  const AgeSelector = ({ value, onChange, label }: { value: number, onChange: (age: number) => void, label: string }) => (
-    <div>
-      <label className="block text-sm font-semibold text-gray-700 mb-3">{label}</label>
-      <div className="bg-gray-50 rounded-2xl p-4">
-        <div className="flex items-center justify-between mb-3">
-          <button
-            type="button"
-            onClick={() => onChange(Math.max(1, value - 1))}
-            className="w-10 h-10 bg-blue-500 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 transition-colors"
-          >
-            <Minus className="w-5 h-5" />
-          </button>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-800">{value}</div>
-            <div className="text-sm text-gray-500">anos</div>
+  // REMOVER todo o componente AgeSelector e SUBSTITUIR por:
+  const BirthDateSelector = ({ value, onChange, label }: { value: Date, onChange: (date: Date) => void, label: string }) => {
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 100;
+    const maxYear = currentYear - 1;
+
+    const adjustDate = (type: 'day' | 'month' | 'year', increment: number) => {
+      const newDate = new Date(value);
+      
+      if (type === 'day') {
+        newDate.setDate(newDate.getDate() + increment);
+      } else if (type === 'month') {
+        newDate.setMonth(newDate.getMonth() + increment);
+      } else if (type === 'year') {
+        newDate.setFullYear(newDate.getFullYear() + increment);
+      }
+      
+      // Limitar os anos
+      if (newDate.getFullYear() < minYear) newDate.setFullYear(minYear);
+      if (newDate.getFullYear() > maxYear) newDate.setFullYear(maxYear);
+      
+      onChange(newDate);
+    };
+
+    return (
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-3">{label}</label>
+        <div className="bg-gray-50 rounded-2xl p-4">
+          {/* Controles de data */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            {/* Dia */}
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-2">Dia</div>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => adjustDate('day', -1)}
+                  className="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors text-sm"
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+                <div className="text-xl font-bold text-gray-800 px-2">
+                  {value.getDate().toString().padStart(2, '0')}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => adjustDate('day', 1)}
+                  className="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors text-sm"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+            
+            {/* Mês */}
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-2">Mês</div>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => adjustDate('month', -1)}
+                  className="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors text-sm"
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+                <div className="text-xl font-bold text-gray-800 px-2">
+                  {(value.getMonth() + 1).toString().padStart(2, '0')}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => adjustDate('month', 1)}
+                  className="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors text-sm"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+            
+            {/* Ano */}
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-2">Ano</div>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => adjustDate('year', -1)}
+                  className="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors text-sm"
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+                <div className="text-lg font-bold text-gray-800 px-1">
+                  {value.getFullYear()}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => adjustDate('year', 1)}
+                  className="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors text-sm"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => onChange(Math.min(120, value + 1))}
-            className="w-10 h-10 bg-blue-500 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
+
+          {/* Data formatada e idade */}
+          <div className="text-center p-3 bg-white rounded-xl">
+            <div className="text-lg font-semibold text-gray-800">
+              {value.toLocaleDateString('pt-BR')}
+            </div>
+            <div className="text-sm text-gray-600">
+              {calculateAge(value)} anos
+            </div>
+          </div>
         </div>
-        <input
-          type="range"
-          min="1"
-          max="120"
-          value={value}
-          onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-        />
       </div>
-    </div>
-  );
+    );
+  };
 
   // Modal Component
   const Modal = () => {
@@ -804,7 +726,7 @@ const MindWellApp = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 p-6 flex items-center justify-center">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="w-35 h-35 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
             <MindWellIcon className="w-60 h-60 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Bem-vindo ao MindWell!</h1>
@@ -830,10 +752,10 @@ const MindWellApp = () => {
               />
             </div>
 
-            <AgeSelector 
-              value={tempAge} 
-              onChange={setTempAge} 
-              label="Qual sua idade?"
+            <BirthDateSelector 
+              value={tempBirthDate} 
+              onChange={setTempBirthDate} 
+              label="Qual sua data de nascimento?"
             />
 
             <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
@@ -864,7 +786,7 @@ const MindWellApp = () => {
     </div>
   );
 
-  const HomeScreen = () => {
+const HomeScreen = () => {
     const canOpenCard = () => {
       const now = Date.now();
       const oneHour = 60 * 60 * 1000;
@@ -880,120 +802,218 @@ const MindWellApp = () => {
     };
 
     const moodTrend = getMoodTrend();
+    const currentHour = new Date().getHours();
+    
+    const getGreeting = () => {
+      if (currentHour < 12) return "Bom dia";
+      if (currentHour < 18) return "Boa tarde";
+      return "Boa noite";
+    };
+
+    const getMotivationalQuote = () => {
+      const quotes = [
+        "Cada dia é uma nova oportunidade para cuidar de si mesmo 🌱",
+        "Pequenos passos todos os dias levam a grandes mudanças ✨",
+        "Sua jornada de bem-estar é única e valiosa 💙",
+        "Respire fundo. Você está fazendo o seu melhor 🌸",
+        "O autocuidado não é luxo, é necessidade 🤗"
+      ];
+      return quotes[Math.floor(Math.random() * quotes.length)];
+    };
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 p-6">
         <div className="max-w-md mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <MindWellIcon className="w-25 h-25 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-800">MindWell</h1>
-            </div>
-              <button 
-                onClick={() => setCurrentScreen('info')}
-                className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow"
-              >
-                <HelpCircle className="w-8 h-8 text-gray-600" />
-              </button>
-          </div>
-          
-          <h2 className="text-xl text-gray-700 mb-6">Olá, {userName}!<br />Como você está hoje?</h2>
-
-          {mood !== null && (
-            <div className="mb-6 p-4 bg-white rounded-xl shadow-sm">
-              <div className="text-center mb-4">
-                <span className="text-6xl">{moods[mood].emoji}</span>
-                <p className="mt-2 text-gray-700 text-lg font-semibold">{moods[mood].label}</p>
-                <p className="mt-1 text-gray-600 text-sm">{moods[mood].message}</p>
-              </div>
+{showMenu && (
+            <>
+              {/* Overlay invisível para capturar cliques e bloquear interações */}
+              <div 
+                className="fixed inset-0 z-40"
+                onClick={() => setShowMenu(false)}
+              />
               
-              {moodTrend && (
-                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-center space-x-2">
-                    <BarChart3 className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">
-                      Tendência dos últimos dias: 
-                      <span className={`ml-1 font-semibold ${
-                        moodTrend === 'positive' ? 'text-green-600' : 
-                        moodTrend === 'neutral' ? 'text-yellow-600' : 'text-red-600'
-                      }`}>
-                        {moodTrend === 'positive' ? '📈 Melhorando' : 
-                         moodTrend === 'neutral' ? '➡️ Estável' : '📉 Precisa de atenção'}
-                      </span>
-                    </span>
-                  </div>
+              {/* Menu animado */}
+              <div 
+                className={`absolute top-16 right-4 w-72 bg-white rounded-2xl shadow-2xl z-50 
+                          transform transition-all duration-300 ease-out border border-gray-100
+                          ${showMenu ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 -translate-y-2'}`}
+              >
+                {/* Header do menu com botão de fechar */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                  <h3 className="font-semibold text-gray-800">Menu</h3>
+                  <button 
+                    onClick={() => setShowMenu(false)}
+                    className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+                    aria-label="Fechar menu"
+                  >
+                    <X className="w-4 h-4 text-gray-600" />
+                  </button>
                 </div>
-              )}
+
+                {/* Items do menu */}
+                <div className="p-2 space-y-1">
+                  
+                  <button 
+                    onClick={() => { setCurrentScreen('meditation-selection'); setShowMenu(false); }} 
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors flex items-center space-x-3"
+                  >
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                      <span className="text-purple-600">🧘</span>
+                    </div>
+                    <span className="text-gray-800 font-medium">Meditar agora</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => { setCurrentScreen('support'); setShowMenu(false); }} 
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors flex items-center space-x-3"
+                  >
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <Shield className="w-4 h-4 text-green-600" />
+                    </div>
+                    <span className="text-gray-800 font-medium">Apoio Emocional</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => { setCurrentScreen('sounds'); setShowMenu(false); }} 
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors flex items-center space-x-3"
+                  >
+                    <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <Volume2 className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <span className="text-gray-800 font-medium">Sons Relaxantes</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => { setCurrentScreen('favorites'); setShowMenu(false); }} 
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors flex items-center space-x-3"
+                  >
+                    <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                      <Heart className="w-4 h-4 text-red-600" />
+                    </div>
+                    <span className="text-gray-800 font-medium">Mensagens Favoritas</span>
+                  </button>
+                  
+                  {/* Separador */}
+                  <div className="my-2 border-t border-gray-100"></div>
+                  
+                  <button 
+                    onClick={() => { setCurrentScreen('info'); setShowMenu(false); }} 
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors flex items-center space-x-3"
+                  >
+                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <HelpCircle className="w-4 h-4 text-gray-500" />
+                    </div>
+                    <span className="text-gray-800 font-medium">Ajuda</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+          
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <MindWellIcon className="w-16 h-16 text-blue-600" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">MindWell</h1>
+                <p className="text-sm text-gray-600">{getGreeting()}, {userName}!</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowMenu(!showMenu)}
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow"
+            >
+              <Menu className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Status do Humor Atual */}
+          {mood !== null ? (
+            <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+              <div className="text-center">
+                <div className="text-6xl mb-3">{moods[mood].emoji}</div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">Humor atual: {moods[mood].label}</h2>
+                <p className="text-gray-600 text-sm mb-4">Registrado hoje</p>
+                
+                {moodTrend && (
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <div className="flex items-center justify-center space-x-2">
+                      <BarChart3 className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-600">
+                        Tendência: 
+                        <span className={`ml-1 font-semibold ${
+                          moodTrend === 'positive' ? 'text-green-600' : 
+                          moodTrend === 'neutral' ? 'text-yellow-600' : 'text-red-600'
+                        }`}>
+                          {moodTrend === 'positive' ? '📈 Melhorando' : 
+                           moodTrend === 'neutral' ? '➡️ Estável' : '📉 Precisa atenção'}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 shadow-lg mb-6">
+              <div className="text-center text-white">
+                <div className="text-4xl mb-3">🤔</div>
+                <h2 className="text-xl font-semibold mb-2">Como você está se sentindo?</h2>
+                <p className="text-blue-100 text-sm mb-4">Registre seu humor para começar sua jornada</p>
+                <button
+                  onClick={() => setCurrentScreen('mood')}
+                  className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+                >
+                  Registrar agora
+                </button>
+              </div>
             </div>
           )}
 
-          <div className="space-y-4">
-            <button
-              onClick={() => setCurrentScreen('mood')}
-              className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-3 hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
-                <span className="text-2xl">{mood !== null ? moods[mood].emoji : '😐'}</span>
-              </div>
-              <div className="flex-1 text-left">
-                <div className="font-medium text-gray-800">Registrar Humor</div>
-                <div className="text-gray-500 text-sm">
-                  {mood !== null ? `Hoje: ${moods[mood].label}` : 'Como você está se sentindo?'}
+          {/* Ações Rápidas */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Ações Rápidas</h3>
+            <div className="space-y-3">
+              <button
+                onClick={() => setCurrentScreen('mood')}
+                className="w-full bg-blue-50 hover:bg-blue-100 rounded-xl p-4 text-left transition-colors flex items-center space-x-3"
+              >
+                <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
+                  <span className="text-lg">{mood !== null ? moods[mood].emoji : '😐'}</span>
                 </div>
-              </div>
-            </button>
-            
-            <button 
-              onClick={() => setCurrentScreen('meditation-selection')}
-              className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-3 hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-                <span className="text-blue-600">🧘</span>
-              </div>
-              <div className="flex-1 text-left">
-                <div className="font-medium text-gray-800">Meditar agora</div>
-                <div className="text-gray-500 text-sm">Técnicas de respiração e mindfulness</div>
-              </div>
-            </button>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-800">
+                    {mood !== null ? 'Atualizar Humor' : 'Registrar Humor'}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {mood !== null ? `Atual: ${moods[mood].label}` : 'Como você se sente?'}
+                  </div>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setCurrentScreen('meditation-selection')}
+                className="w-full bg-purple-50 hover:bg-purple-100 rounded-xl p-4 text-left transition-colors flex items-center space-x-3"
+              >
+                <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center">
+                  <span className="text-lg">🧘</span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-800">Meditar</div>
+                  <div className="text-sm text-gray-600">Respire e relaxe</div>
+                </div>
+              </button>
+            </div>
+          </div>
 
-            <button 
-              onClick={() => setCurrentScreen('support')}
-              className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-3 hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center">
-                <Shield className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="flex-1 text-left">
-                <div className="font-medium text-gray-800">Apoio Emocional</div>
-                <div className="text-gray-500 text-sm">Recursos e técnicas de apoio</div>
-              </div>
-            </button>
-
-            <button 
-              onClick={() => setCurrentScreen('sounds')}
-              className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-3 hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-yellow-200 rounded-full flex items-center justify-center">
-                <Volume2 className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div className="flex-1 text-left">
-                <div className="font-medium text-gray-800">Sons Relaxantes</div>
-                <div className="text-gray-500 text-sm">Natureza e ambientes calmos</div>
-              </div>
-            </button>
-
-            <button 
-              onClick={() => setCurrentScreen('favorites')}
-              className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-3 hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center">
-                <Heart className="w-6 h-6 text-red-600" />
-              </div>
-              <div className="flex-1 text-left">
-                <div className="font-medium text-gray-800">Mensagens Favoritas</div>
-                <div className="text-gray-500 text-sm">{favorites.length} mensagens salvas</div>
-              </div>
-            </button>
+          {/* Citação Motivacional */}
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border border-green-100">
+            <div className="text-center">
+              <div className="text-2xl mb-3">💫</div>
+              <p className="text-gray-700 font-medium italic leading-relaxed">
+                {getMotivationalQuote()}
+              </p>
+            </div>
           </div>
         </div>
         
@@ -1286,22 +1306,22 @@ const MindWellApp = () => {
         icon: '💨'
       },
       {
-        id: 'meditation',
-        name: 'Tom Meditativo',
-        description: 'Frequência relaxante',
-        icon: '🧘'
+        id: 'forest',
+        name: 'Floresta Tropical',
+        description: 'Sons de pássaros e folhas',
+        icon: '🌲'
       },
       {
-        id: 'deep',
-        name: 'Respiração Profunda',
-        description: 'Tom para respiração',
-        icon: '💨'
+        id: 'thunder',
+        name: 'Trovoada Distante',
+        description: 'Trovões suaves e chuva',
+        icon: '⛈️'
       },
       {
-        id: 'calm',
-        name: 'Calma Total',
-        description: 'Ambiente tranquilo',
-        icon: '✨'
+        id: 'fireplace',
+        name: 'Lareira Crepitante',
+        description: 'Som de lenha queimando',
+        icon: '🔥'
       }
     ];
 
@@ -1645,7 +1665,7 @@ const MindWellApp = () => {
               <span className="text-3xl text-white font-bold">{userName.charAt(0).toUpperCase()}</span>
             </div>
             <h2 className="text-2xl font-bold text-gray-800">{userName}</h2>
-            <p className="text-gray-600">{userAge} anos</p>
+            <p className="text-gray-600">{userBirthDate ? calculateAge(new Date(userBirthDate)) : 0} anos</p>
           </div>
 
           {!isEditing ? (
@@ -1670,10 +1690,10 @@ const MindWellApp = () => {
                 />
               </div>
               
-              <AgeSelector 
-                value={tempAge} 
-                onChange={setTempAge} 
-                label="Idade"
+              <BirthDateSelector 
+                value={tempBirthDate} 
+                onChange={setTempBirthDate} 
+                label="Data de nascimento"
               />
 
               <div className="flex space-x-3">
@@ -1681,7 +1701,7 @@ const MindWellApp = () => {
                   onClick={() => {
                     setIsEditing(false);
                     setTempName('');
-                    setTempAge(parseInt(userAge));
+                    setTempBirthDate(userBirthDate ? new Date(userBirthDate) : new Date(1999, 0, 1));
                   }}
                   className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors"
                 >
@@ -1691,7 +1711,7 @@ const MindWellApp = () => {
                   onClick={() => {
                     if (tempName.trim()) {
                       setUserName(tempName.trim());
-                      setUserAge(tempAge.toString());
+                      setUserBirthDate(tempBirthDate.toISOString());
                       setIsEditing(false);
                       setTempName('');
                     }
@@ -1729,18 +1749,6 @@ const MindWellApp = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => setCurrentScreen('mood-history')}
-          className="w-full bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-3 hover:bg-gray-50 transition-colors"
-        >
-          <div className="w-12 h-12 bg-indigo-200 rounded-full flex items-center justify-center">
-            <BarChart3 className="w-6 h-6 text-indigo-600" />
-          </div>
-          <div className="flex-1 text-left">
-            <div className="font-semibold text-gray-800">Histórico de Humor</div>
-            <div className="text-gray-600 text-sm">Veja sua evolução emocional</div>
-          </div>
-        </button>
       </div>
     </div>
   );
@@ -1749,7 +1757,7 @@ const MindWellApp = () => {
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-blue-100 p-6">
       <div className="max-w-md mx-auto">
         <div className="flex items-center mb-8">
-          <button onClick={() => setCurrentScreen('profile')} className="mr-4">
+          <button onClick={() => setCurrentScreen('home')} className="mr-4">
             <ArrowLeft className="w-6 h-6 text-gray-600" />
           </button>
           <h1 className="text-xl font-bold text-gray-800">Histórico de Humor</h1>
@@ -2022,6 +2030,13 @@ const MindWellApp = () => {
           className={`p-3 rounded-full ${currentScreen === 'profile' ? 'bg-green-100' : ''}`}
         >
           <User className={`w-6 h-6 ${currentScreen === 'profile' ? 'text-green-600' : 'text-gray-400'}`} />
+        </button>
+
+        <button 
+          onClick={() => setCurrentScreen('mood-history')}
+          className={`p-3 rounded-full ${currentScreen === 'mood-history' ? 'bg-blue-100' : ''}`}
+        >
+          <BookOpenIcon className={`w-6 h-6 ${currentScreen === 'mood-history' ? 'text-blue-600' : 'text-gray-400'}`} />
         </button>
       </div>
     </div>
