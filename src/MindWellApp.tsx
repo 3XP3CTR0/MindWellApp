@@ -18,6 +18,8 @@ const MindWellApp = () => {
   const [groundingStep, setGroundingStep] = useState(0);
   const [moodHistory, setMoodHistory] = useState<{date: string, mood: number, note: string}[]>([]);
   const [showMenu, setShowMenu] = useState(false);
+    const [isFirstTime, setIsFirstTime] = useState(true);
+    const [currentMoodNote, setCurrentMoodNote] = useState('');
 
 
   // Ícone personalizado MindWell
@@ -218,12 +220,12 @@ const MindWellApp = () => {
       try {
         // Mapear os tipos de som para os arquivos MP3
         const soundFiles = {
-          'rain': 'public/audio/rain.mp3',
-          'ocean': 'public/audio/ocean.mp3',
-          'wind': 'public/audio/wind.mp3',
-          'forest': 'public/audio/forest.mp3',
-          'thunder': 'public/audio/thunder.mp3',
-          'fireplace': 'public/audio/fireplace.mp3',
+            'rain': '/audio/rain.mp3',
+            'ocean': '/audio/ocean.mp3',
+            'wind': '/audio/wind.mp3',
+            'forest': '/audio/forest.mp3',
+            'thunder': '/audio/thunder.mp3',
+            'fireplace': '/audio/fireplace.mp3',
         };
 
         const audioFile = soundFiles[soundType];
@@ -284,11 +286,11 @@ const MindWellApp = () => {
   const getChartData = () => {
     if (moodHistory.length === 0) return [];
     
-    return moodHistory.slice(-14).map((entry, index) => ({
+    return moodHistory.slice(-14).map((entry) => ({
       day: new Date(entry.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       mood: entry.score, // Normalizar de 1-8 para melhor visualização
-      label: moods[entry.mood].label,
-      emoji: moods[entry.mood].emoji,
+    label: moods[entry.mood]?.label,
+    emoji: moods[entry.mood]?.emoji,
       note: entry.note || ''
     }));
   };
@@ -444,28 +446,23 @@ const MindWellApp = () => {
   ];
 
   const handleOpenMessage = () => {
-    if (mood === null) {
+    if (mood === null || typeof mood !== 'number' || !moods[mood]) {
       alert('Por favor, registre seu humor antes de abrir a carta! 🙂');
       return;
     }
-
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
-
     if (dailyUsage.lastUsed && (now - dailyUsage.lastUsed) < oneHour) {
       const timeLeft = Math.ceil((oneHour - (now - dailyUsage.lastUsed)) / (60 * 1000));
       alert(`Aguarde mais ${timeLeft} minutos para abrir uma nova carta! ⏰`);
       return;
     }
-
     // Sorteia uma mensagem entre as disponíveis do humor atual
     const moodMessages = moods[mood].messages;
     const randomIndex = Math.floor(Math.random() * moodMessages.length);
     const message = moodMessages[randomIndex];
-
     setCurrentMessage(message);
     setShowModal(true);
-
     setDailyUsage(prev => ({ ...prev, lastUsed: now, count: prev.count + 1 }));
   };
 
@@ -508,8 +505,8 @@ const MindWellApp = () => {
     const recent = moodHistory.slice(-7); // Últimos 7 dias
     const average = recent.reduce((sum, entry) => sum + entry.mood, 0) / recent.length;
     
-    if (average >= 2.5) return 'positive';
-    if (average >= 1.5) return 'neutral';
+    if (average >= 5.5) return 'positive';
+    if (average >= 3.5) return 'neutral';
     return 'negative';
   };
 
