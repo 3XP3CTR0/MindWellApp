@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Menu, X, HelpCircle, Shield, Volume2, Heart, BarChart3, Mail } from 'lucide-react';
 import MindWellIcon from '../components/MindWellIcon';
 import Modal from '../components/Modal';
-import { MoodEntry } from '../types';
+import type {MoodEntry} from '../types';
 import { moods } from '../data';
 
 interface HomeScreenProps {
@@ -80,7 +80,7 @@ const HomeScreen = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-md mx-auto">
         {showMenu && (
           <>

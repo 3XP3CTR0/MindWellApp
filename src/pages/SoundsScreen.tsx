@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Volume2, Play, Pause } from 'lucide-react';
 import MindWellSoundManager from '../lib/soundManager';
-import { CalmingSound, SoundType } from '../types';
+import type {CalmingSound, SoundType} from '../types';
 
 const calmingSounds: CalmingSound[] = [
   {
@@ -78,7 +78,7 @@ const SoundsScreen = ({ setCurrentScreen }: SoundsScreenProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-100 to-blue-100 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-md mx-auto">
         <div className="flex items-center mb-8">
           <button 

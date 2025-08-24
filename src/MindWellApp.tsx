@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import useLocalStorage from './hooks/useLocalStorage';
-import { MoodEntry } from './types';
+import type {MoodEntry} from './types';
 import { moods } from './data';
 
 import OnboardingScreen from './pages/OnboardingScreen';
@@ -185,7 +185,7 @@ const MindWellApp = () => {
   const showNavBar = ['home', 'mood-history', 'meditation-selection', 'profile'].includes(currentScreen);
 
   return (
-    <div style={{ paddingBottom: showNavBar ? '80px' : '0' }}>
+    <div className="bg-gradient-to-br from-blue-100 to-purple-100" style={{ paddingBottom: showNavBar ? '80px' : '0' }}>
       {renderScreen()}
       {showNavBar && <BottomNavBar currentScreen={currentScreen} setCurrentScreen={setCurrentScreen} />}
     </div>

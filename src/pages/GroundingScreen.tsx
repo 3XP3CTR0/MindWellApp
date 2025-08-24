@@ -25,7 +25,7 @@ const GroundingScreen = ({ setCurrentScreen, groundingStep, setGroundingStep }: 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-green-100 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-md mx-auto">
         <div className="flex items-center mb-8">
           <button onClick={() => setCurrentScreen('support')} className="mr-4">

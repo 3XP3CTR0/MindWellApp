@@ -1,4 +1,4 @@
-import { Mood, MeditationType, GroundingStep, EmergencyContact } from '../types';
+import type {Mood, MeditationType, GroundingStep, EmergencyContact} from './types';
 
 export const moods: Mood[] = [
   { 

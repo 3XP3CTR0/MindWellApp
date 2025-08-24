@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Edit3 } from 'lucide-react';
 import BirthDateSelector from '../components/BirthDateSelector';
-import { MoodEntry } from '../types';
+import type {MoodEntry} from '../types';
 
 interface ProfileScreenProps {
   setCurrentScreen: (screen: string) => void;
@@ -55,7 +55,7 @@ const ProfileScreen = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-100 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-md mx-auto">
         <div className="flex items-center mb-8">
           <button onClick={() => setCurrentScreen('home')} className="mr-4">

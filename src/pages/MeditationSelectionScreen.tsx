@@ -7,7 +7,7 @@ interface MeditationSelectionScreenProps {
 }
 
 const MeditationSelectionScreen = ({ setCurrentScreen, setSelectedMeditation }: MeditationSelectionScreenProps) => (
-  <div className="min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 p-6">
+  <div className="min-h-screen p-6">
     <div className="max-w-md mx-auto">
       <div className="flex items-center mb-8">
         <button onClick={() => setCurrentScreen('home')} className="mr-4">
