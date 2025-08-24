@@ -1,4 +1,10 @@
 import type {Mood, MeditationType, GroundingStep, EmergencyContact} from './types';
+import rain from '../public/audio/rain.mp3'
+import ocean from '../public/audio/ocean.mp3'
+import wind from '../public/audio/wind.mp3'
+import forest from '../public/audio/forest.mp3'
+import thunder from '../public/audio/thunder.mp3'
+import fireplace from '../public/audio/fireplace.mp3'
 
 export const moods: Mood[] = [
   { 
@@ -153,12 +159,12 @@ export const meditationTypes: MeditationType[] = [
 ];
 
 export const SOUND_FILES = {
-  rain: '/audio/rain.mp3',
-  ocean: '/audio/ocean.mp3',
-  wind: '/audio/wind.mp3',
-  forest: '/audio/forest.mp3',
-  thunder: '/audio/thunder.mp3',
-  fireplace: '/audio/fireplace.mp3',
+    rain: rain,
+    ocean: ocean,
+    wind: wind,
+    forest: forest,
+    thunder: thunder,
+    fireplace: fireplace,
 } as const;
 
 export const groundingSteps: GroundingStep[] = [

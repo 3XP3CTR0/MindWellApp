@@ -1,5 +1,5 @@
 import { SOUND_FILES } from '../data';
-import { SoundType } from '../types';
+import type {SoundType} from '../types';
 
 class MindWellSoundManager {
   private currentAudio: HTMLAudioElement | null = null;
