@@ -36,7 +36,7 @@ const MindWellApp = () => {
   // Ícone personalizado MindWell usando seu PNG da pasta public
   const MindWellIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
     <img 
-      src="public/mindwell_app_icon.png" 
+      src="/mindwell_app_icon.svg" 
       alt="MindWell Icon" 
       className={`${className} object-contain`}
     />
