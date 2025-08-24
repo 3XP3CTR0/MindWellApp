@@ -2,6 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, HelpCircle, Volume2, Target, Heart, User, Edit3, Mail, X, Play, Menu, Pause, BookOpenIcon, Shield, Minus, Plus, BarChart3, Phone, ExternalLink, BookOpen, TrendingUp, Calendar } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
+
+type MoodEntry = {
+  date: string;
+  mood: number;
+  note: string;
+  score: number;
+  time?: string;
+  timestamp?: number;
+};
+
 const MindWellApp = () => {
   const [currentScreen, setCurrentScreen] = useState('onboarding');
   const [mood, setMood] = useState<number | null>(null);
@@ -16,10 +26,10 @@ const MindWellApp = () => {
   const [dailyUsage, setDailyUsage] = useState({ date: new Date().toDateString(), count: 0, lastUsed: 0 });
   const [selectedMeditation, setSelectedMeditation] = useState('');
   const [groundingStep, setGroundingStep] = useState(0);
-  const [moodHistory, setMoodHistory] = useState<{date: string, mood: number, note: string}[]>([]);
+  const [moodHistory, setMoodHistory] = useState<MoodEntry[]>([]);
   const [showMenu, setShowMenu] = useState(false);
-  const [isFirstTime, setIsFirstTime] = useState(true);
-  const [currentMoodNote, setCurrentMoodNote] = useState('');
+  const [, setIsFirstTime] = useState(true);
+  const [, setCurrentMoodNote] = useState('');
 
 
   // Ícone personalizado MindWell
@@ -206,57 +216,48 @@ const MindWellApp = () => {
   ];
 
   // Classe para gerenciar os sons (usando arquivos MP3 reais)
+  const SOUND_FILES = {
+    rain: 'public/audio/rain.mp3',
+    ocean: 'public/audio/ocean.mp3',
+    wind: 'public/audio/wind.mp3',
+    forest: 'public/audio/forest.mp3',
+    thunder: 'public/audio/thunder.mp3',
+    fireplace: 'public/audio/fireplace.mp3',
+  } as const;
+  type SoundType = keyof typeof SOUND_FILES;
+
   class MindWellSoundManager {
-    constructor() {
-      this.currentAudio = null;
-      this.isPlaying = false;
-      this.currentSoundType = '';
-      this.volume = 0.7;
-    }
+    private currentAudio: HTMLAudioElement | null = null;
+    public isPlaying: boolean = false;
+    public currentSoundType: SoundType | '' = '';
+    public volume: number = 0.7;
 
-    async playSound(soundType) {
+    async playSound(soundType: SoundType): Promise<boolean> {
       this.stopSound();
-      
       try {
-        // Mapear os tipos de som para os arquivos MP3
-        const soundFiles = {
-            'rain': '/audio/rain.mp3',
-            'ocean': '/audio/ocean.mp3',
-            'wind': '/audio/wind.mp3',
-            'forest': '/audio/forest.mp3',
-            'thunder': '/audio/thunder.mp3',
-            'fireplace': '/audio/fireplace.mp3',
-        };
-
-        const audioFile = soundFiles[soundType];
-        if (!audioFile) {
-          console.warn(`Som ${soundType} não encontrado`);
-          return false;
-        }
+        const audioFile = SOUND_FILES[soundType];
+        if (!audioFile) return false;
 
         this.currentAudio = new Audio(audioFile);
         this.currentAudio.loop = true;
         this.currentAudio.volume = this.volume;
-        
-        // Aguardar o carregamento do áudio
-        await new Promise((resolve, reject) => {
-          this.currentAudio.addEventListener('canplaythrough', resolve, { once: true });
-          this.currentAudio.addEventListener('error', reject, { once: true });
-          this.currentAudio.load();
+
+        await new Promise<void>((resolve, reject) => {
+          this.currentAudio!.addEventListener('canplaythrough', () => resolve(), { once: true });
+          this.currentAudio!.addEventListener('error', () => reject(new Error('Erro no áudio')), { once: true });
+          this.currentAudio!.load();
         });
 
         await this.currentAudio.play();
         this.isPlaying = true;
         this.currentSoundType = soundType;
-        
         return true;
-      } catch (error) {
-        console.error('Erro ao reproduzir som:', error);
+      } catch {
         return false;
       }
     }
 
-    stopSound() {
+    stopSound(): void {
       if (this.currentAudio) {
         this.currentAudio.pause();
         this.currentAudio.currentTime = 0;
@@ -266,13 +267,12 @@ const MindWellApp = () => {
       this.currentSoundType = '';
     }
 
-    setVolume(volume) {
+    setVolume(volume: number): void {
       this.volume = volume;
-      if (this.currentAudio) {
-        this.currentAudio.volume = volume;
-      }
+      if (this.currentAudio) this.currentAudio.volume = volume;
     }
   }
+
 
   const groundingSteps = [
     { title: '5 coisas que você VÊ', description: 'Olhe ao redor e identifique 5 coisas que você pode ver', emoji: '👀' },
@@ -781,7 +781,7 @@ const MindWellApp = () => {
     </div>
   );
 
-const HomeScreen = () => {
+  const HomeScreen = () => {
     const canOpenCard = () => {
       const now = Date.now();
       const oneHour = 60 * 60 * 1000;
@@ -1159,12 +1159,12 @@ const HomeScreen = () => {
 
   const BreathingScreen = () => {
     const [breathing, setBreathing] = useState({ active: false, phase: 'inhale', count: 4 });
-    const [breathingTimer, setBreathingTimer] = useState<NodeJS.Timeout | null>(null);
+    const [breathingTimer, setBreathingTimer] = useState<ReturnType<typeof setInterval> | null>(null);
 
     const selectedMeditationType = meditationTypes.find(m => m.id === selectedMeditation) || meditationTypes[0];
 
     useEffect(() => {
-      let timer: NodeJS.Timeout | null = null;
+      let timer: ReturnType<typeof setInterval> | null = null;
       if (breathing.active) {
         timer = setInterval(() => {
           setBreathing(prev => {
@@ -1278,8 +1278,8 @@ const HomeScreen = () => {
     const [volume, setVolume] = useState(0.7);
     const soundManagerRef = useRef(new MindWellSoundManager());
 
-    // Lista de sons calmantes (gerados artificialmente)
-    const calmingSounds = [
+    type CalmingSound = { id: SoundType; name: string; description: string; icon: string };
+    const calmingSounds: CalmingSound[] = [
       {
         id: 'rain',
         name: 'Chuva Suave',
@@ -1317,9 +1317,10 @@ const HomeScreen = () => {
         icon: '🔥'
       }
     ];
+   
 
     // Função para tocar/parar som
-    const toggleSound = async (sound) => {
+    const toggleSound = async (sound:CalmingSound) => {
       const soundManager = soundManagerRef.current;
       
       if (localPlayingSound === sound.id) {
