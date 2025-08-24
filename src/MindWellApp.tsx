@@ -205,7 +205,7 @@ const MindWellApp = () => {
     }
   ];
 
-// Classe para gerenciar os sons (usando arquivos MP3 reais)
+  // Classe para gerenciar os sons (usando arquivos MP3 reais)
   class MindWellSoundManager {
     constructor() {
       this.currentAudio = null;
