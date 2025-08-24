@@ -4,7 +4,6 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, A
 
 const MindWellApp = () => {
   const [currentScreen, setCurrentScreen] = useState('onboarding');
-  const [isFirstTime, setIsFirstTime] = useState(true);
   const [mood, setMood] = useState<number | null>(null);
   const [userName, setUserName] = useState('');
   const [tempName, setTempName] = useState('');
@@ -18,7 +17,6 @@ const MindWellApp = () => {
   const [selectedMeditation, setSelectedMeditation] = useState('');
   const [groundingStep, setGroundingStep] = useState(0);
   const [moodHistory, setMoodHistory] = useState<{date: string, mood: number, note: string}[]>([]);
-  const [currentMoodNote, setCurrentMoodNote] = useState('');
   const [showMenu, setShowMenu] = useState(false);
 
 
