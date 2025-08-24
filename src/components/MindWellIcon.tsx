@@ -1,6 +1,9 @@
+import Icon from "../../public/mindwell_app_icon.png";
+
+
 const MindWellIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <img
-    src="/mindwell_app_icon.svg"
+    src={Icon}
     alt="MindWell Icon"
     className={`${className} object-contain`}
   />

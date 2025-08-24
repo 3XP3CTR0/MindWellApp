@@ -1,6 +1,6 @@
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { BarChart3 } from 'lucide-react';
-import { MoodEntry } from '../types';
+import type {MoodEntry} from '../types';
 import { moods } from '../data';
 
 interface MoodChartProps {
