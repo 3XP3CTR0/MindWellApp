@@ -10,7 +10,7 @@ class MindWellSoundManager {
   async playSound(soundType: SoundType): Promise<boolean> {
     this.stopSound();
     try {
-      const audioFile = SOUND_FILES[soundType];
+      const audioFile = SOUND_FILES[soundType] as unknown as string;
       if (!audioFile) return false;
 
       this.currentAudio = new Audio(audioFile);
