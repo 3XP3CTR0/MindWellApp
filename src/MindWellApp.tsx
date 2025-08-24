@@ -18,8 +18,8 @@ const MindWellApp = () => {
   const [groundingStep, setGroundingStep] = useState(0);
   const [moodHistory, setMoodHistory] = useState<{date: string, mood: number, note: string}[]>([]);
   const [showMenu, setShowMenu] = useState(false);
-    const [isFirstTime, setIsFirstTime] = useState(true);
-    const [currentMoodNote, setCurrentMoodNote] = useState('');
+  const [isFirstTime, setIsFirstTime] = useState(true);
+  const [currentMoodNote, setCurrentMoodNote] = useState('');
 
 
   // Ícone personalizado MindWell
@@ -1164,15 +1164,15 @@ const HomeScreen = () => {
     const selectedMeditationType = meditationTypes.find(m => m.id === selectedMeditation) || meditationTypes[0];
 
     useEffect(() => {
+      let timer: NodeJS.Timeout | null = null;
       if (breathing.active) {
-        const timer = setInterval(() => {
+        timer = setInterval(() => {
           setBreathing(prev => {
             if (prev.count > 1) {
               return { ...prev, count: prev.count - 1 };
             } else {
               let nextPhase = '';
               let nextCount = 4;
-              
               if (selectedMeditation === 'breathing-478') {
                 if (prev.phase === 'inhale') { nextPhase = 'hold'; nextCount = 7; }
                 else if (prev.phase === 'hold') { nextPhase = 'exhale'; nextCount = 8; }
@@ -1187,7 +1187,6 @@ const HomeScreen = () => {
                 else if (prev.phase === 'hold') { nextPhase = 'exhale'; nextCount = 4; }
                 else { nextPhase = 'inhale'; nextCount = 4; }
               }
-              
               return { ...prev, phase: nextPhase, count: nextCount };
             }
           });
@@ -1196,9 +1195,8 @@ const HomeScreen = () => {
       } else {
         if (breathingTimer) clearInterval(breathingTimer);
       }
-
       return () => {
-        if (breathingTimer) clearInterval(breathingTimer);
+        if (timer) clearInterval(timer);
       };
     }, [breathing.active, selectedMeditation]);
 
