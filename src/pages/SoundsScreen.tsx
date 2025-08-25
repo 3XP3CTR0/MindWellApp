@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Volume2, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Play, Pause } from 'lucide-react';
 import MindWellSoundManager from '../lib/soundManager';
 import type {CalmingSound, SoundType} from '../types';
 
@@ -7,19 +7,19 @@ const calmingSounds: CalmingSound[] = [
   {
     id: 'rain',
     name: 'Chuva Suave',
-    description: 'Som relaxante de chuva (artificial)',
+    description: 'Som relaxante de chuva',
     icon: '🌧️'
   },
   {
     id: 'ocean',
     name: 'Ondas do Oceano',
-    description: 'Ondas suaves do mar (artificial)',
+    description: 'Ondas suaves do mar',
     icon: '🌊'
   },
   {
     id: 'wind',
     name: 'Vento Suave',
-    description: 'Brisa relaxante (artificial)',
+    description: 'Brisa relaxante',
     icon: '💨'
   },
   {
@@ -31,7 +31,7 @@ const calmingSounds: CalmingSound[] = [
   {
     id: 'thunder',
     name: 'Trovoada Distante',
-    description: 'Trovões suaves e chuva',
+    description: 'Trovões e chuva',
     icon: '⛈️'
   },
   {
@@ -48,7 +48,6 @@ interface SoundsScreenProps {
 
 const SoundsScreen = ({ setCurrentScreen }: SoundsScreenProps) => {
   const [localPlayingSound, setLocalPlayingSound] = useState<SoundType | ''>('');
-  const [volume, setVolume] = useState(0.7);
   const soundManagerRef = useRef(new MindWellSoundManager());
 
   const toggleSound = async (sound: CalmingSound) => {
@@ -66,10 +65,6 @@ const SoundsScreen = ({ setCurrentScreen }: SoundsScreenProps) => {
       }
     }
   };
-
-  useEffect(() => {
-    soundManagerRef.current.setVolume(volume);
-  }, [volume]);
 
   useEffect(() => {
     return () => {
@@ -95,24 +90,6 @@ const SoundsScreen = ({ setCurrentScreen }: SoundsScreenProps) => {
         </div>
 
         <p className="text-gray-600 mb-6">Escolha um som para relaxar e focar</p>
-
-        <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <Volume2 className="w-5 h-5 text-gray-600" />
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={volume}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
-              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-            />
-            <span className="text-sm text-gray-600 w-8">
-              {Math.round(volume * 100)}%
-            </span>
-          </div>
-        </div>
 
         <div className="space-y-4">
           {calmingSounds.map((sound) => (

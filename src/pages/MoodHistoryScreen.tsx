@@ -9,11 +9,7 @@ interface MoodHistoryScreenProps {
 }
 
 const MoodHistoryScreen = ({ setCurrentScreen, moodHistory }: MoodHistoryScreenProps) => {
-  const calculateAverageMood = () => {
-    if (moodHistory.length === 0) return 0;
-    const average = moodHistory.reduce((sum, entry) => sum + entry.score, 0) / moodHistory.length;
-    return Math.round((average / 8) * 100);
-  };
+
 
   return (
     <div className="min-h-screen p-6">
@@ -48,27 +44,6 @@ const MoodHistoryScreen = ({ setCurrentScreen, moodHistory }: MoodHistoryScreenP
                 </div>
               </div>
               <MoodChart moodHistory={moodHistory} />
-            </div>
-
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <BarChart3 className="w-5 h-5 mr-2 text-purple-600" />
-                Resumo
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {calculateAverageMood()}%
-                  </div>
-                  <div className="text-sm text-gray-600">Humor Médio</div>
-                </div>
-                <div className="text-center p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
-                  <div className="text-2xl font-bold text-green-600">
-                    {moodHistory.filter(entry => entry.score >= 5).length}
-                  </div>
-                  <div className="text-sm text-gray-600">Dias Bons</div>
-                </div>
-              </div>
             </div>
 
             <div className="space-y-3">

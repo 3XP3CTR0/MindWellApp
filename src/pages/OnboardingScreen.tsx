@@ -54,13 +54,6 @@ const OnboardingScreen = ({ completeOnboarding }: OnboardingScreenProps) => {
               label="Qual sua data de nascimento?"
             />
 
-            <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100">
-              <p className="text-blue-700 text-sm text-center">
-                <span className="font-semibold">🔒 Suas informações são privadas</span><br />
-                Não compartilhamos seus dados com terceiros
-              </p>
-            </div>
-
             <button
               onClick={handleComplete}
               disabled={!tempName.trim()}

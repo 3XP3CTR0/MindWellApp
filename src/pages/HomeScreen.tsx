@@ -34,6 +34,12 @@ const HomeScreen = ({
 }: HomeScreenProps) => {
   const [showMenu, setShowMenu] = useState(false);
 
+  const calculateAverageMood = () => {
+    if (moodHistory.length === 0) return 0;
+    const average = moodHistory.reduce((sum, entry) => sum + entry.score, 0) / moodHistory.length;
+    return Math.round((average / 8) * 100);
+  };
+
   const getMoodTrend = () => {
     if (moodHistory.length < 2) return null;
     
@@ -195,6 +201,23 @@ const HomeScreen = ({
                   </div>
                 </div>
               )}
+
+              <button
+                onClick={() => setCurrentScreen('mood')}
+                className="w-full bg-blue-50 hover:bg-blue-100 rounded-xl p-4 text-left transition-colors flex items-center space-x-3 mt-4"
+              >
+                <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
+                  <span className="text-lg">{mood !== null ? moods[mood].emoji : '😐'}</span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-800">
+                    {mood !== null ? 'Atualizar Humor' : 'Registrar Humor'}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {mood !== null ? `Atual: ${moods[mood].label}` : 'Como você se sente?'}
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
         ) : (
@@ -213,42 +236,28 @@ const HomeScreen = ({
           </div>
         )}
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Ações Rápidas</h3>
-          <div className="space-y-3">
-            <button
-              onClick={() => setCurrentScreen('mood')}
-              className="w-full bg-blue-50 hover:bg-blue-100 rounded-xl p-4 text-left transition-colors flex items-center space-x-3"
-            >
-              <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center">
-                <span className="text-lg">{mood !== null ? moods[mood].emoji : '😐'}</span>
+       <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <BarChart3 className="w-5 h-5 mr-2 text-purple-600" />
+                Resumo
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+              <div className="text-2xl font-bold text-blue-600">
+                {calculateAverageMood()}%
               </div>
-              <div className="flex-1">
-                <div className="font-medium text-gray-800">
-                  {mood !== null ? 'Atualizar Humor' : 'Registrar Humor'}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {mood !== null ? `Atual: ${moods[mood].label}` : 'Como você se sente?'}
-                </div>
+              <div className="text-sm text-gray-600">Humor Médio</div>
+            </div>
+            <div className="text-center p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
+              <div className="text-2xl font-bold text-green-600">
+                {moodHistory.filter(entry => entry.score >= 5).length}
               </div>
-            </button>
-            
-            <button
-              onClick={() => setCurrentScreen('meditation-selection')}
-              className="w-full bg-purple-50 hover:bg-purple-100 rounded-xl p-4 text-left transition-colors flex items-center space-x-3"
-            >
-              <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center">
-                <span className="text-lg">🧘</span>
-              </div>
-              <div className="flex-1">
-                <div className="font-medium text-gray-800">Meditar</div>
-                <div className="text-sm text-gray-600">Respire e relaxe</div>
-              </div>
-            </button>
+              <div className="text-sm text-gray-600">Dias Bons</div>
+            </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border border-green-100">
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 border border-green-100 mt-4">
           <div className="text-center">
             <div className="text-2xl mb-3">💫</div>
             <p className="text-gray-700 font-medium italic leading-relaxed">
@@ -256,6 +265,8 @@ const HomeScreen = ({
             </p>
           </div>
         </div>
+
+        
       </div>
       
       <button
