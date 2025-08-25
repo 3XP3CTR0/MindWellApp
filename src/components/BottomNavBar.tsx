@@ -1,4 +1,4 @@
-import { Home, BarChart3, User, Zap } from 'lucide-react';
+import { Home, BarChart3, User } from 'lucide-react';
 
 interface BottomNavBarProps {
   currentScreen: string;
@@ -9,7 +9,6 @@ const BottomNavBar = ({ currentScreen, setCurrentScreen }: BottomNavBarProps) =>
   const navItems = [
     { screen: 'home', label: 'Início', icon: <Home className="w-6 h-6" /> },
     { screen: 'mood-history', label: 'Histórico', icon: <BarChart3 className="w-6 h-6" /> },
-    { screen: 'meditation-selection', label: 'Meditar', icon: <Zap className="w-6 h-6" /> },
     { screen: 'profile', label: 'Perfil', icon: <User className="w-6 h-6" /> },
   ];
 
