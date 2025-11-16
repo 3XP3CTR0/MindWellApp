@@ -28,7 +28,6 @@ const BreathingScreen = ({ setCurrentScreen, selectedMeditation }: BreathingScre
   const [showSettings, setShowSettings] = useState(false);
   const [isSessionComplete, setIsSessionComplete] = useState(false);
   const [, setSessionStartTime] = useState<Date | null>(null);
-  
   const breathingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioContext = useRef<AudioContext | null>(null);
@@ -77,11 +76,34 @@ const BreathingScreen = ({ setCurrentScreen, selectedMeditation }: BreathingScre
   const getBreathingPattern = (): BreathingPattern => {
     switch (selectedMeditation) {
       case 'breathing-478':
-        return { prepare: 3, inhale: 4, hold: 7, exhale: 8, hold1: 0, hold2: 0 };
+        return { 
+          prepare: 3, 
+          inhale: 4, 
+          hold: 7, 
+          exhale: 8, 
+          hold1: 0, 
+          hold2: 0 
+        } as BreathingPattern;
+
       case 'box-breathing':
-        return { prepare: 3, inhale: 4, hold: 0, exhale: 4, hold1: 4, hold2: 4 };
+        return { 
+          prepare: 3, 
+          inhale: 4, 
+          hold: 0, 
+          exhale: 4, 
+          hold1: 4, 
+          hold2: 4 
+        } as BreathingPattern;
+
       default:
-        return { prepare: 3, inhale: 4, hold: 4, exhale: 4, hold1: 0, hold2: 0 };
+        return { 
+          prepare: 3, 
+          inhale: 4, 
+          hold: 4, 
+          exhale: 4, 
+          hold1: 0, 
+          hold2: 0 
+        } as BreathingPattern;
     }
   };
 
